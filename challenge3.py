@@ -69,3 +69,23 @@ for index, value in enumerate(kmeans):
 print("done in %0.3fs." % (time() - t0))
 
 print("3.run score")
+
+#build hash table. If the hamming distance of two videos is less than N, put them in the same bucket,
+#label the bucket with hash code
+my_dict = dict()
+#read the filename, save the name without file format
+head, tail = os.path.split(filenames[0])
+t0 = time()
+#DHash same with Week 10 the second exercise
+my_dict[DHash.calculate_hash(PIL.Image.fromarray(np.uint8(extract_frames(filenames[0]))))]=[tail.split('.')[0]]
+for name in filenames:
+    head, tail = os.path.split(name)
+    current_video = PIL.Image.fromarray(np.uint8(extract_frames(name)))
+    current_hash = DHash.calculate_hash(current_video)
+    inbucket = True
+    for key in my_dict:
+        if ((DHash.hamming_distance(key, current_hash)<10)):
+            my_dict[key].append(tail.split('.')[0])
+            inbucket = False
+    if(inbucket):
+        my_dict[current_hash] =  [tail.split('.')[0]]
