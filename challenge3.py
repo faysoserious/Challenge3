@@ -26,8 +26,6 @@ def extract_frames(filename):
     frames_list = [x for x in resized.iter_frames()]
 #   merge all the extracted frames as a long image
     frames = np.stack(frames_list, axis=0)
-#    frames = np.vstack(frames)
-#    frames = frames_list[len(frames_list)//2]
     feature = dict()
     val = list()
     for img in(frames):
