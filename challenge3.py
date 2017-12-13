@@ -19,12 +19,12 @@ filenames = glob.glob('C:\\Users\\fxie_\\Google Drive\\02807 Computational Tools
 
 def extract_frames(filename):
     head, tail = os.path.split(filename)
-    print('read video {}.mp4'.format(tail.split('.')[0]))
+#    print('read video {}.mp4'.format(tail.split('.')[0]))
     clip = VideoFileClip(filename)
     #resize each frame reduce the computation cost
     resized = clip.resize((100,100))
     frames_list = [x for x in resized.iter_frames()]
-#   merge all the extracted frames as a long image
+
     frames = np.stack(frames_list, axis=0)
     feature = dict()
     val = list()
@@ -42,9 +42,14 @@ print("1.Hashing for each video")
 
 t0 = time()
 my_dict = dict()
-for file in filenames:
+#-------------fix-----------------------------------------
+for index, file in enumerate(filenames):
+#for file in filenames:
     head, tail = os.path.split(file)
     my_dict[tail.split('.')[0]]=DHash.calculate_hash(PIL.Image.fromarray(np.uint8(extract_frames(file))))
+    if(index%100==0):
+        print("{} videos has been read".format(index))    
+    
 print("done in %0.3fs." % (time() - t0))    
 
 print("2.Clustering all the hash")
@@ -54,7 +59,10 @@ cluster_matrix = dict()
 for key1,key2 in comparison:
     cluster_matrix[(key1,key2)]=DHash.hamming_distance(key1,key2)
 buckets = np.array(list(cluster_matrix.values()))
-hash_sample = buckets.reshape(len(filenames),len(filenames))
+
+#hash_sample = buckets.reshape(-1,len(filenames))
+#--------------------------fix----------------------------
+hash_sample = buckets.reshape(-1,1)
 kmeans = KMeans(n_clusters=n_video, random_state=0,n_jobs=-1).fit_predict(hash_sample)
 
 clusters =dict()
